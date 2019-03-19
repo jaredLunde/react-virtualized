@@ -1,6 +1,6 @@
 const env = process.env.NODE_ENV;
 
-if (env === 'commonjs' || env === 'es') {
+if (env === 'es') {
   module.exports = {
     ignore: [
       '*.jest.js',
@@ -12,44 +12,22 @@ if (env === 'commonjs' || env === 'es') {
       'source/TestUtils.js',
     ],
     plugins: [
-      'transform-runtime',
       ['flow-react-proptypes', {deadCode: true, useESModules: true}],
-      ['transform-react-remove-prop-types', {mode: 'wrap'}],
     ],
-    presets: [['env', {modules: false}], 'react', 'flow', 'stage-2'],
-  };
-
-  if (env === 'commonjs') {
-    module.exports.plugins.push('transform-es2015-modules-commonjs');
+    presets: [
+      [
+        "@stellar-apps/es",
+        {
+          "env": {
+            "useBuiltIns": false,
+            "modules": false,
+            "targets": {"browsers": ">5% in US"}
+          },
+          "runtime": {"useESModules": true}
+        }
+      ],
+      "@stellar-apps/react",
+      "@babel/flow"
+    ]
   }
-}
-
-if (env === 'rollup') {
-  module.exports = {
-    comments: false,
-    plugins: ['external-helpers'],
-    presets: [['env', { modules: false }], 'react', 'flow', 'stage-2'],
-  };
-}
-
-if (env === 'development') {
-  module.exports = {
-    presets: ['react', 'flow', 'stage-2'],
-  };
-}
-
-if (env === 'production') {
-  module.exports = {
-    comments: false,
-    plugins: ['transform-runtime'],
-    presets: ['env', 'react', 'flow', 'stage-2'],
-  };
-}
-
-if (env === 'test') {
-  module.exports = {
-    comments: false,
-    plugins: ['transform-es2015-modules-commonjs'],
-    presets: ['react', 'flow', 'stage-2'],
-  };
 }
