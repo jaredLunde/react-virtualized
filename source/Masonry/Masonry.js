@@ -43,6 +43,7 @@ const getInnerStyle = memoizeOne(
     maxHeight: estimateTotalHeight,
     overflow: 'hidden',
     position: 'relative',
+    willChange: 'contents'
   }),
 )
 const getCachedWidth = memoizeOne(width => ({width}))

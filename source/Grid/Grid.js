@@ -57,7 +57,7 @@ const getGridContainerStyle = memoizeOne(
       position: 'relative',
       width: autoWidth ? 'auto' : width,
       WebkitOverflowScrolling: 'touch',
-      willChange: 'transform',
+      // willChange: 'transform'
     }
   ),
 )
@@ -1572,6 +1572,7 @@ class Grid extends React.PureComponent<Props, State> {
       overflow: 'hidden',
       pointerEvents: isScrolling ? 'none' : '',
       position: 'relative',
+      willChange: 'contents'
     }
 
     return (
