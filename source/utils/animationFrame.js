@@ -5,13 +5,15 @@ type CancelAnimationFrame = (requestId: number) => void;
 type RequestAnimationFrame = (callback: Callback) => number;
 
 // Properly handle server-side rendering.
-let win;
+let win
 if (typeof window !== 'undefined') {
-  win = window;
-} else if (typeof self !== 'undefined') {
-  win = self;
-} else {
-  win = {};
+  win = window
+}
+else if (typeof self !== 'undefined') {
+  win = self
+}
+else {
+  win = {}
 }
 
 // requestAnimationFrame() shim by Paul Irish
@@ -22,9 +24,9 @@ const request =
   win.mozRequestAnimationFrame ||
   win.oRequestAnimationFrame ||
   win.msRequestAnimationFrame ||
-  function(callback: Callback): RequestAnimationFrame {
-    return (win: any).setTimeout(callback, 1000 / 60);
-  };
+  function (callback: Callback): RequestAnimationFrame {
+    return (win: any).setTimeout(callback, 1000 / 60)
+  }
 
 const cancel =
   win.cancelAnimationFrame ||
@@ -32,9 +34,9 @@ const cancel =
   win.mozCancelAnimationFrame ||
   win.oCancelAnimationFrame ||
   win.msCancelAnimationFrame ||
-  function(id: number) {
-    (win: any).clearTimeout(id);
-  };
+  function (id: number) {
+    (win: any).clearTimeout(id)
+  }
 
-export const raf: RequestAnimationFrame = (request: any);
-export const caf: CancelAnimationFrame = (cancel: any);
+export const raf: RequestAnimationFrame = (request: any)
+export const caf: CancelAnimationFrame = (cancel: any)

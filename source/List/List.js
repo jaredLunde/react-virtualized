@@ -4,17 +4,19 @@ import type {
   Alignment,
   CellSize,
   OverscanIndicesGetter,
-} from '../Grid';
-import type {RowRenderer, RenderedRows} from './types';
-import Grid, {accessibilityOverscanIndicesGetter} from '../Grid';
-import * as React from 'react';
-import clsx from 'clsx';
+} from '../Grid'
+import type {RowRenderer, RenderedRows} from './types'
+import Grid, {accessibilityOverscanIndicesGetter} from '../Grid'
+import * as React from 'react'
+import clsx_ from 'clsx'
+import memoizeOne from '../utils/memoizeOne'
+
 
 /**
- * It is inefficient to create and manage a large list of DOM elements within a scrolling container
- * if only a few of those elements are visible. The primary purpose of this component is to improve
- * performance by only rendering the DOM nodes that a user is able to see based on their current
- * scroll position.
+ * It is inefficient to create and manage a large list of DOM elements within a scrolling
+ * container if only a few of those elements are visible. The primary purpose of this component
+ * is to improve performance by only rendering the DOM nodes that a user is able to see based
+ * on their current scroll position.
  *
  * This component renders a virtualized list of elements with either fixed or dynamic heights.
  */
@@ -30,8 +32,8 @@ type Props = {
   /** Optional CSS class name */
   className?: string,
   /**
-   * Used to estimate the total height of a List before all of its rows have actually been measured.
-   * The estimated total height is adjusted as rows are rendered.
+   * Used to estimate the total height of a List before all of its rows have actually been
+   * measured. The estimated total height is adjusted as rows are rendered.
    */
   estimatedRowSize: number,
   /** Height constraint for list (determines how many actual rows are rendered) */
@@ -67,87 +69,91 @@ type Props = {
   width: number,
 };
 
+const clsx = memoizeOne(clsx_)
+
 export default class List extends React.PureComponent<Props> {
   static defaultProps = {
     autoHeight: false,
     estimatedRowSize: 30,
-    onScroll: () => {},
+    onScroll: () => {
+    },
     noRowsRenderer: () => null,
-    onRowsRendered: () => {},
+    onRowsRendered: () => {
+    },
     overscanIndicesGetter: accessibilityOverscanIndicesGetter,
     overscanRowCount: 10,
     scrollToAlignment: 'auto',
     scrollToIndex: -1,
     style: {},
-  };
+  }
 
-  Grid: ?React.ElementRef<typeof Grid>;
+  Grid: ?React.ElementRef<typeof Grid>
 
-  forceUpdateGrid() {
+  forceUpdateGrid () {
     if (this.Grid) {
-      this.Grid.forceUpdate();
+      this.Grid.forceUpdate()
     }
   }
 
   /** See Grid#getOffsetForCell */
-  getOffsetForRow({alignment, index}: {alignment: Alignment, index: number}) {
+  getOffsetForRow ({alignment, index}: { alignment: Alignment, index: number }) {
     if (this.Grid) {
       const {scrollTop} = this.Grid.getOffsetForCell({
         alignment,
         rowIndex: index,
         columnIndex: 0,
-      });
+      })
 
-      return scrollTop;
+      return scrollTop
     }
-    return 0;
+    return 0
   }
 
   /** CellMeasurer compatibility */
-  invalidateCellSizeAfterRender(columnIndex, rowIndex) {
+  invalidateCellSizeAfterRender (columnIndex, rowIndex) {
     if (this.Grid) {
-      this.Grid.invalidateCellSizeAfterRender(rowIndex, columnIndex,)
+      this.Grid.invalidateCellSizeAfterRender(rowIndex, columnIndex)
     }
   }
 
   /** See Grid#measureAllCells */
-  measureAllRows() {
+  measureAllRows () {
     if (this.Grid) {
-      this.Grid.measureAllCells();
+      this.Grid.measureAllCells()
     }
   }
 
   /** CellMeasurer compatibility */
-  recomputeGridSize(rowIndex = 0, columnIndex = 0) {
+  recomputeGridSize (rowIndex = 0, columnIndex = 0) {
     if (this.Grid) {
-      this.Grid.recomputeGridSize(rowIndex, columnIndex);
+      this.Grid.recomputeGridSize(rowIndex, columnIndex)
     }
   }
 
   /** See Grid#recomputeGridSize */
-  recomputeRowHeights(rowIndex: number = 0) {
+  recomputeRowHeights (rowIndex: number = 0) {
     if (this.Grid) {
-      this.Grid.recomputeGridSize(rowIndex, 0);
+      this.Grid.recomputeGridSize(rowIndex, 0)
     }
   }
 
   /** See Grid#scrollToPosition */
-  scrollToPosition(scrollTop: number = 0) {
+  scrollToPosition (scrollTop: number = 0) {
     if (this.Grid) {
-      this.Grid.scrollToPosition({scrollTop});
+      this.Grid.scrollToPosition({scrollTop})
     }
   }
 
   /** See Grid#scrollToCell */
-  scrollToRow(index: number = 0) {
+  scrollToRow (index: number = 0) {
     if (this.Grid) {
-      this.Grid.scrollToCell({rowIndex: index, columnIndex: 0});
+      this.Grid.scrollToCell({rowIndex: index, columnIndex: 0})
     }
   }
 
-  render() {
-    const {className, scrollToIndex, width} = this.props;
-    const classNames = clsx('ReactVirtualized__List', className);
+  render () {
+    const {className, scrollToIndex, width} = this.props
+    const classNames = clsx('ReactVirtualized__List', className)
 
     return (
       <Grid
@@ -161,7 +167,7 @@ export default class List extends React.PureComponent<Props> {
         ref={this._setRef}
         scrollToRow={scrollToIndex}
       />
-    );
+    )
   }
 
   _cellRenderer = (
@@ -177,11 +183,11 @@ export default class List extends React.PureComponent<Props> {
     // However as of React 16, style props are auto-frozen (at least in dev mode)
     // Check to make sure we can still modify the style before proceeding.
     // https://github.com/facebook/react/commit/977357765b44af8ff0cfea327866861073095c12#commitcomment-20648713
-    const {writable} = Object.getOwnPropertyDescriptor(style, 'width');
+    const {writable} = Object.getOwnPropertyDescriptor(style, 'width')
     if (writable) {
       // By default, List cells should be 100% width.
       // This prevents them from flowing under a scrollbar (if present).
-      style.width = '100%';
+      style.width = '100%'
     }
 
     return this.props.rowRenderer(
@@ -189,20 +195,20 @@ export default class List extends React.PureComponent<Props> {
       key,
       parent,
       style,
-      isVisible
-    );
-  };
+      isVisible,
+    )
+  }
 
   _setRef = (ref: ?React.ElementRef<typeof Grid>) => {
-    this.Grid = ref;
-  };
+    this.Grid = ref
+  }
 
   _onSectionRendered = props => {
     this.props.onRowsRendered(
       props.rowStartIndex,
       props.rowStopIndex,
       props.rowOverscanStartIndex,
-      props.rowOverscanStopIndex
-    );
-  };
+      props.rowOverscanStopIndex,
+    )
+  }
 }

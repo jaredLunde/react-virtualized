@@ -1,5 +1,6 @@
 /** @flow */
-import createIntervalTree from '../vendor/intervalTree';
+import createIntervalTree from '../vendor/intervalTree'
+
 
 type RenderCallback = (index: number, left: number, top: number) => void;
 
@@ -7,29 +8,29 @@ type RenderCallback = (index: number, left: number, top: number) => void;
 //   O(log(n)) lookup of cells to render for a given viewport size
 //   O(1) lookup of shortest measured column (so we know when to enter phase 1)
 export default class PositionCache {
+  tallestColumnSize = 0
+  shortestColumnSize = 0
   // Tracks the height of each column
-  _columnSizeMap: {[x: number]: number} = {};
-
+  _columnSizeMap: {[x: number]: number} = {}
   // Store tops and bottoms of each cell for fast intersection lookup.
-  _intervalTree = createIntervalTree();
-
+  _intervalTree = createIntervalTree()
   // Maps cell index to x coordinates for quick lookup.
-  _leftMap: {[index: number]: number} = {};
+  _leftMap: {[index: number]: number} = {}
 
-  estimateTotalHeight(
+  estimateTotalHeight (
     cellCount: number,
     columnCount: number,
-    defaultCellHeight: number,
+    defaultCellHeight: number
   ): number {
-    const unmeasuredCellCount = cellCount - this.count;
     return (
-      this.tallestColumnSize +
-      Math.ceil(unmeasuredCellCount / columnCount) * defaultCellHeight
-    );
+      this.tallestColumnSize
+      + Math.ceil((cellCount - this.count) / columnCount)
+      * defaultCellHeight
+    )
   }
 
   // Render all cells visible within the viewport range defined.
-  range(
+  range (
     scrollTop: number,
     clientHeight: number,
     renderCallback: RenderCallback,
@@ -38,48 +39,31 @@ export default class PositionCache {
       scrollTop,
       scrollTop + clientHeight,
       ([top, _, index]) => renderCallback(index, this._leftMap[index], top),
-    );
+    )
   }
 
-  setPosition(index: number, left: number, top: number, height: number): void {
-    this._intervalTree.insert([top, top + height, index]);
-    this._leftMap[index] = left;
+  setPosition (index: number, left: number, top: number, height: number): void {
+    this._intervalTree.insert([top, top + height, index])
+    this._leftMap[index] = left
 
-    const columnSizeMap = this._columnSizeMap;
-    const columnHeight = columnSizeMap[left];
+    const columnSizeMap = this._columnSizeMap
+    const columnHeight = columnSizeMap[left]
+
     if (columnHeight === undefined) {
-      columnSizeMap[left] = top + height;
-    } else {
-      columnSizeMap[left] = Math.max(columnHeight, top + height);
+      height = top + height
+      columnSizeMap[left] = height
     }
-  }
-
-  get count(): number {
-    return this._intervalTree.count;
-  }
-
-  get shortestColumnSize() {
-    const keys = Object.keys(this._columnSizeMap);
-    let size = 0;
-
-    for (let i = 0; i < keys.length; i++) {
-      let height = this._columnSizeMap[keys[i]];
-      size = size === 0 ? height : Math.min(size, height);
+    else {
+      height = Math.max(columnHeight, top + height)
+      columnSizeMap[left] = height
     }
 
-    return size;
+    this.tallestColumnSize = Math.max(this.tallestColumnSize, height)
+    this.shortestColumnSize =
+      this.shortestColumnSize === 0 ? height : Math.min(this.shortestColumnSize, height)
   }
 
-  get tallestColumnSize() {
-    const keys = Object.keys(this._columnSizeMap);
-    let size = 0;
-
-    for (let i = 0; i < keys.length; i++) {
-      let height = this._columnSizeMap[keys[i]];
-      size = Math.max(size, height);
-    }
-
-    return size;
+  get count (): number {
+    return this._intervalTree.count
   }
-
 }

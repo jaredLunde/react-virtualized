@@ -1,7 +1,7 @@
 /** @flow */
-import clsx from 'clsx';
-import * as React from 'react';
-import PositionCache from './PositionCache';
+import clsx_ from 'clsx'
+import * as React from 'react'
+import PositionCache from './PositionCache'
 import memoizeOne from '../utils/memoizeOne'
 
 
@@ -16,16 +16,16 @@ type Props = {
   id: ?string,
   keyMapper: KeyMapper,
   onCellsRendered: ?OnCellsRenderedCallback,
-  overscanByPixels: number,
+  overscanBy: number,
   role: string,
   isScrolling: boolean,
   scrollTop: number,
   style: mixed,
   tabIndex: number,
   width: number,
-  rowDirection: string,
 };
 
+const clsx = memoizeOne(clsx_)
 const getDefaultContainerStyle = memoizeOne(
   (isScrolling, width) => ({
     direction: 'ltr',
@@ -33,7 +33,7 @@ const getDefaultContainerStyle = memoizeOne(
     position: 'relative',
     width,
     pointerEvents: isScrolling ? 'none' : '',
-  })
+  }),
 )
 const getInnerStyle = memoizeOne(
   estimateTotalHeight => ({
@@ -43,8 +43,10 @@ const getInnerStyle = memoizeOne(
     maxHeight: estimateTotalHeight,
     overflow: 'hidden',
     position: 'relative',
-  })
+  }),
 )
+const getCachedWidth = memoizeOne(width => ({width}))
+
 /**
  * This component efficiently displays arbitrarily positioned cells using windowing techniques.
  * Cell position is determined by an injected `cellPositioner` property.
@@ -81,88 +83,87 @@ class Masonry extends React.PureComponent<Props> {
     autoHeight: false,
     keyMapper: identity,
     onCellsRendered: noop,
-    overscanByPixels: 20,
+    overscanBy: 20,
     role: 'grid',
     tabIndex: 0,
-    rowDirection: 'ltr',
-  };
+  }
 
-  _invalidateOnUpdateStartIndex: ?number = null;
-  _invalidateOnUpdateStopIndex: ?number = null;
-  _positionCache: PositionCache = new PositionCache();
-  _startIndex: ?number = null;
-  _startIndexMemoized: ?number = null;
-  _stopIndex: ?number = null;
-  _stopIndexMemoized: ?number = null;
+  _invalidateOnUpdateStartIndex: ?number = null
+  _invalidateOnUpdateStopIndex: ?number = null
+  _positionCache: PositionCache = new PositionCache()
+  _startIndex: ?number = null
+  _startIndexMemoized: ?number = null
+  _stopIndex: ?number = null
+  _stopIndexMemoized: ?number = null
 
   clearCellPositions () {
-    this._positionCache = new PositionCache();
-    this.forceUpdate();
+    this._positionCache = new PositionCache()
+    this.forceUpdate()
   }
 
   // HACK This method signature was intended for Grid
   invalidateCellSizeAfterRender (rowIndex) {
     if (this._invalidateOnUpdateStartIndex === null) {
-      this._invalidateOnUpdateStartIndex = rowIndex;
-      this._invalidateOnUpdateStopIndex = rowIndex;
+      this._invalidateOnUpdateStartIndex = rowIndex
+      this._invalidateOnUpdateStopIndex = rowIndex
     }
     else {
       this._invalidateOnUpdateStartIndex = Math.min(
         this._invalidateOnUpdateStartIndex,
         rowIndex,
-      );
+      )
       this._invalidateOnUpdateStopIndex = Math.max(
         this._invalidateOnUpdateStopIndex,
         rowIndex,
-      );
+      )
     }
   }
 
   recomputeCellPositions () {
-    const stopIndex = this._positionCache.count - 1;
-    this._positionCache = new PositionCache();
-    this._populatePositionCache(0, stopIndex);
-    this.forceUpdate();
+    const stopIndex = this._positionCache.count - 1
+    this._positionCache = new PositionCache()
+    this._populatePositionCache(0, stopIndex)
+    this.forceUpdate()
   }
 
   componentDidMount () {
-    this._checkInvalidateOnUpdate();
-    this._invokeOnCellsRenderedCallback();
+    this._checkInvalidateOnUpdate()
+    this._invokeOnCellsRenderedCallback()
   }
 
   componentDidUpdate (prevProps: Props) {
-    this._checkInvalidateOnUpdate();
-    this._invokeOnCellsRenderedCallback();
+    this._checkInvalidateOnUpdate()
+    this._invokeOnCellsRenderedCallback()
   }
 
   _checkInvalidateOnUpdate () {
     if (typeof this._invalidateOnUpdateStartIndex === 'number') {
-      const startIndex = this._invalidateOnUpdateStartIndex;
-      const stopIndex = this._invalidateOnUpdateStopIndex;
+      const startIndex = this._invalidateOnUpdateStartIndex
+      const stopIndex = this._invalidateOnUpdateStopIndex
 
-      this._invalidateOnUpdateStartIndex = null;
-      this._invalidateOnUpdateStopIndex = null;
+      this._invalidateOnUpdateStartIndex = null
+      this._invalidateOnUpdateStopIndex = null
 
       // Query external layout logic for position of newly-measured cells
-      this._populatePositionCache(startIndex, stopIndex);
+      this._populatePositionCache(startIndex, stopIndex)
 
-      this.forceUpdate();
+      this.forceUpdate()
     }
   }
 
   _getEstimatedTotalHeight () {
-    const {cellCount, cellMeasurerCache, width} = this.props;
+    const {cellCount, cellMeasurerCache, cellPositioner, width} = this.props
 
     const estimatedColumnCount = Math.max(
       1,
-      Math.floor(width / cellMeasurerCache.defaultWidth),
-    );
-
+      Math.floor(width / cellPositioner.columnWidth),
+    )
+    
     return this._positionCache.estimateTotalHeight(
       cellCount,
       estimatedColumnCount,
       cellMeasurerCache.defaultHeight,
-    );
+    )
   }
 
   _invokeOnCellsRenderedCallback () {
@@ -171,23 +172,23 @@ class Masonry extends React.PureComponent<Props> {
       this._stopIndexMemoized !== this._stopIndex
     ) {
       this.props.onCellsRendered(this._startIndex, this._stopIndex)
-      this._startIndexMemoized = this._startIndex;
-      this._stopIndexMemoized = this._stopIndex;
+      this._startIndexMemoized = this._startIndex
+      this._stopIndexMemoized = this._stopIndex
     }
   }
 
   _populatePositionCache (startIndex: number, stopIndex: number) {
-    const {cellMeasurerCache, cellPositioner} = this.props;
+    const {cellMeasurerCache, cellPositioner} = this.props
 
     for (let index = startIndex; index <= stopIndex; index++) {
-      const {left, top} = cellPositioner(index);
+      const {left, top} = cellPositioner(index)
 
       this._positionCache.setPosition(
         index,
         left,
         top,
         cellMeasurerCache.getHeight(index),
-      );
+      )
     }
   }
 
@@ -200,34 +201,33 @@ class Masonry extends React.PureComponent<Props> {
       height,
       id,
       keyMapper,
-      overscanByPixels,
+      overscanBy,
       role,
       style,
       tabIndex,
       width,
-      rowDirection,
       isScrolling,
       scrollTop,
-    } = this.props;
+    } = this.props
 
 
-    const children = [];
-    const shortestColumnSize = this._positionCache.shortestColumnSize;
-    const measuredCellCount = this._positionCache.count;
-    let startIndex = 0;
-    let stopIndex;
+    const children = []
+    const shortestColumnSize = this._positionCache.shortestColumnSize
+    const measuredCellCount = this._positionCache.count
+    let startIndex = 0
+    let stopIndex
 
     this._positionCache.range(
-      Math.max(0, scrollTop - overscanByPixels),
-      height + overscanByPixels * 2,
+      Math.max(0, scrollTop - overscanBy),
+      height + overscanBy * 2,
       (index: number, left: number, top: number) => {
         if (typeof stopIndex === 'undefined') {
-          startIndex = index;
-          stopIndex = index;
+          startIndex = index
+          stopIndex = index
         }
         else {
-          startIndex = Math.min(startIndex, index);
-          stopIndex = Math.max(stopIndex, index);
+          startIndex = Math.min(startIndex, index)
+          stopIndex = Math.max(stopIndex, index)
         }
 
         children.push(
@@ -236,52 +236,47 @@ class Masonry extends React.PureComponent<Props> {
             keyMapper(index), // key
             this, // parent
             {
-              height: cellMeasurerCache.getHeight(index),
-              [rowDirection === 'ltr' ? 'left' : 'right']: left,
-              position: 'absolute',
               top,
-              width: this._positionCache.columnWidth
+              left,
+              height: cellMeasurerCache.getHeight(index),
+              width: this._positionCache.columnWidth,
+              position: 'absolute',
             }, // style
           ),
-        );
+        )
       },
-    );
+    )
 
     // We need to measure additional cells for this layout
-    if (
-      shortestColumnSize < scrollTop + height + overscanByPixels &&
-      measuredCellCount < cellCount
-    ) {
+    if (shortestColumnSize < scrollTop + height + overscanBy && measuredCellCount < cellCount) {
       const batchSize = Math.min(
         cellCount - measuredCellCount,
         Math.ceil(
           (
-            scrollTop + height + overscanByPixels - shortestColumnSize
+            scrollTop + height + overscanBy - shortestColumnSize
           ) /
           cellMeasurerCache.defaultHeight *
           width /
           cellMeasurerCache.defaultWidth,
         ),
-      );
+      )
 
       for (let index = measuredCellCount; index < measuredCellCount + batchSize; index++) {
-        stopIndex = index;
+        stopIndex = index
 
         children.push(
           cellRenderer(
             index, // index
             keyMapper(index), //key
             this, // parent
-            {
-              width: this._positionCache.columnWidth,
-            } // style
+            getCachedWidth(this._positionCache.columnWidth), // style
           ),
-        );
+        )
       }
     }
 
-    this._startIndex = startIndex;
-    this._stopIndex = stopIndex;
+    this._startIndex = startIndex
+    this._stopIndex = stopIndex
 
     return (
       <div
@@ -292,10 +287,10 @@ class Masonry extends React.PureComponent<Props> {
         style={
           typeof style === 'object' && style !== null
             ? {
-              ...getDefaultContainerStyle(isScrolling, width),
-              ...style,
-            }
-            : getDefaultContainerStyle(isScrolling)
+                ...getDefaultContainerStyle(isScrolling, width),
+                ...style,
+              }
+            : getDefaultContainerStyle(isScrolling, width)
         }
         tabIndex={tabIndex}
       >
@@ -306,15 +301,16 @@ class Masonry extends React.PureComponent<Props> {
           {children}
         </div>
       </div>
-    );
+    )
   }
 }
 
 function identity (value) {
-  return value;
+  return value
 }
 
-function noop () {}
+function noop () {
+}
 
 type KeyMapper = (index: number) => mixed;
 
@@ -342,6 +338,6 @@ type Position = {
   top: number,
 };
 
-export default Masonry;
+export default Masonry
 
 export type Positioner = (index: number) => Position;

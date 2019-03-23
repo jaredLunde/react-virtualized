@@ -1,8 +1,9 @@
-import getUpdatedOffsetForIndex from './getUpdatedOffsetForIndex';
-import {getCellMetadata} from './TestHelper';
+import getUpdatedOffsetForIndex from './getUpdatedOffsetForIndex'
+import {getCellMetadata} from './TestHelper'
+
 
 describe('getUpdatedOffsetForIndex', () => {
-  function testHelper(
+  function testHelper (
     targetIndex,
     currentOffset,
     cellMetadata = getCellMetadata(),
@@ -12,28 +13,28 @@ describe('getUpdatedOffsetForIndex', () => {
       cellSize: cellMetadata[targetIndex].size,
       containerSize: 50,
       currentOffset,
-    });
+    })
   }
 
   it('should scroll to the beginning', () => {
-    expect(testHelper(0, 100)).toEqual(0);
-  });
+    expect(testHelper(0, 100)).toEqual(0)
+  })
 
   it('should scroll forward to the middle', () => {
-    expect(testHelper(4, 0)).toEqual(20);
-  });
+    expect(testHelper(4, 0)).toEqual(20)
+  })
 
   it('should scroll backward to the middle', () => {
-    expect(testHelper(2, 100)).toEqual(30);
-  });
+    expect(testHelper(2, 100)).toEqual(30)
+  })
 
   it('should not scroll if an item is already visible', () => {
-    expect(testHelper(2, 20)).toEqual(20);
-  });
+    expect(testHelper(2, 20)).toEqual(20)
+  })
 
   it('should scroll to the end', () => {
-    expect(testHelper(8, 0)).toEqual(110);
-  });
+    expect(testHelper(8, 0)).toEqual(110)
+  })
 
   it('should honor specified :align values', () => {
     expect(
@@ -44,7 +45,7 @@ describe('getUpdatedOffsetForIndex', () => {
         containerSize: 50,
         currentOffset: 0,
       }),
-    ).toEqual(10);
+    ).toEqual(10)
     expect(
       getUpdatedOffsetForIndex({
         align: 'start',
@@ -53,7 +54,7 @@ describe('getUpdatedOffsetForIndex', () => {
         containerSize: 50,
         currentOffset: 0,
       }),
-    ).toEqual(50);
+    ).toEqual(50)
     expect(
       getUpdatedOffsetForIndex({
         align: 'auto',
@@ -62,7 +63,7 @@ describe('getUpdatedOffsetForIndex', () => {
         containerSize: 50,
         currentOffset: 100,
       }),
-    ).toEqual(50);
+    ).toEqual(50)
     expect(
       getUpdatedOffsetForIndex({
         align: 'end',
@@ -71,7 +72,7 @@ describe('getUpdatedOffsetForIndex', () => {
         containerSize: 50,
         currentOffset: 100,
       }),
-    ).toEqual(10);
+    ).toEqual(10)
     expect(
       getUpdatedOffsetForIndex({
         align: 'center',
@@ -80,6 +81,6 @@ describe('getUpdatedOffsetForIndex', () => {
         containerSize: 50,
         currentOffset: 100,
       }),
-    ).toEqual(30);
-  });
-});
+    ).toEqual(30)
+  })
+})

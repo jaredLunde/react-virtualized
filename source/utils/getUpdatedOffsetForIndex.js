@@ -1,7 +1,8 @@
 /**
  * Determines a new offset that ensures a certain cell is visible, given the current offset.
  * If the cell is already visible then the current offset will be returned.
- * If the current offset is too great or small, it will be adjusted just enough to ensure the specified index is visible.
+ * If the current offset is too great or small, it will be adjusted just enough to ensure the
+ * specified index is visible.
  *
  * @param align Desired alignment within container; one of "auto" (default), "start", or "end"
  * @param cellOffset Offset (x or y) position for cell
@@ -10,24 +11,26 @@
  * @param currentOffset Container's current (x or y) offset
  * @return Offset to use to ensure the specified cell is visible
  */
-export default function getUpdatedOffsetForIndex({
+export default function getUpdatedOffsetForIndex ({
   align = 'auto',
   cellOffset,
   cellSize,
   containerSize,
   currentOffset,
 }) {
-  const maxOffset = cellOffset;
-  const minOffset = maxOffset - containerSize + cellSize;
+  const maxOffset = cellOffset
+  const minOffset = maxOffset - containerSize + cellSize
 
   switch (align) {
     case 'start':
-      return maxOffset;
+      return maxOffset
     case 'end':
-      return minOffset;
+      return minOffset
     case 'center':
-      return maxOffset - (containerSize - cellSize) / 2;
+      return maxOffset - (
+        containerSize - cellSize
+      ) / 2
     default:
-      return Math.max(minOffset, Math.min(maxOffset, currentOffset));
+      return Math.max(minOffset, Math.min(maxOffset, currentOffset))
   }
 }
