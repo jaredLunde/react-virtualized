@@ -9,9 +9,9 @@
 
 import bounds from './binarySearchBounds';
 
-var NOT_FOUND = 0;
-var SUCCESS = 1;
-var EMPTY = 2;
+let NOT_FOUND = 0;
+let SUCCESS = 1;
+let EMPTY = 2;
 
 function IntervalTreeNode(mid, left, right, leftPoints, rightPoints) {
   this.mid = mid;
@@ -23,7 +23,7 @@ function IntervalTreeNode(mid, left, right, leftPoints, rightPoints) {
     (left ? left.count : 0) + (right ? right.count : 0) + leftPoints.length;
 }
 
-var proto = IntervalTreeNode.prototype;
+let proto = IntervalTreeNode.prototype;
 
 function copy(a, b) {
   a.mid = b.mid;
@@ -35,7 +35,7 @@ function copy(a, b) {
 }
 
 function rebuild(node, intervals) {
-  var ntree = createIntervalTree(intervals);
+  let ntree = createIntervalTree(intervals);
   node.mid = ntree.mid;
   node.left = ntree.left;
   node.right = ntree.right;
@@ -45,14 +45,14 @@ function rebuild(node, intervals) {
 }
 
 function rebuildWithInterval(node, interval) {
-  var intervals = node.intervals([]);
+  let intervals = node.intervals([]);
   intervals.push(interval);
   rebuild(node, intervals);
 }
 
 function rebuildWithoutInterval(node, interval) {
-  var intervals = node.intervals([]);
-  var idx = intervals.indexOf(interval);
+  let intervals = node.intervals([]);
+  let idx = intervals.indexOf(interval);
   if (idx < 0) {
     return NOT_FOUND;
   }
@@ -73,7 +73,7 @@ proto.intervals = function(result) {
 };
 
 proto.insert = function(interval) {
-  var weight = this.count - this.leftPoints.length;
+  let weight = this.count - this.leftPoints.length;
   this.count += 1;
   if (interval[1] < this.mid) {
     if (this.left) {
@@ -96,24 +96,24 @@ proto.insert = function(interval) {
       this.right = createIntervalTree([interval]);
     }
   } else {
-    var l = bounds.ge(this.leftPoints, interval, compareBegin);
-    var r = bounds.ge(this.rightPoints, interval, compareEnd);
+    let l = bounds.ge(this.leftPoints, interval, compareBegin);
+    let r = bounds.ge(this.rightPoints, interval, compareEnd);
     this.leftPoints.splice(l, 0, interval);
     this.rightPoints.splice(r, 0, interval);
   }
 };
 
 proto.remove = function(interval) {
-  var weight = this.count - this.leftPoints;
+  let weight = this.count - this.leftPoints;
   if (interval[1] < this.mid) {
     if (!this.left) {
       return NOT_FOUND;
     }
-    var rw = this.right ? this.right.count : 0;
+    let rw = this.right ? this.right.count : 0;
     if (4 * rw > 3 * (weight - 1)) {
       return rebuildWithoutInterval(this, interval);
     }
-    var r = this.left.remove(interval);
+    let r = this.left.remove(interval);
     if (r === EMPTY) {
       this.left = null;
       this.count -= 1;
@@ -126,11 +126,11 @@ proto.remove = function(interval) {
     if (!this.right) {
       return NOT_FOUND;
     }
-    var lw = this.left ? this.left.count : 0;
+    let lw = this.left ? this.left.count : 0;
     if (4 * lw > 3 * (weight - 1)) {
       return rebuildWithoutInterval(this, interval);
     }
-    var r = this.right.remove(interval);
+    let r = this.right.remove(interval);
     if (r === EMPTY) {
       this.right = null;
       this.count -= 1;
@@ -149,8 +149,8 @@ proto.remove = function(interval) {
     }
     if (this.leftPoints.length === 1 && this.leftPoints[0] === interval) {
       if (this.left && this.right) {
-        var p = this;
-        var n = this.left;
+        let p = this;
+        let n = this.left;
         while (n.right) {
           p = n;
           n = n.right;
@@ -158,8 +158,8 @@ proto.remove = function(interval) {
         if (p === this) {
           n.right = this.right;
         } else {
-          var l = this.left;
-          var r = this.right;
+          let l = this.left;
+          let r = this.right;
           p.count -= n.count;
           p.right = n.left;
           n.left = l;
@@ -178,7 +178,7 @@ proto.remove = function(interval) {
       return SUCCESS;
     }
     for (
-      var l = bounds.ge(this.leftPoints, interval, compareBegin);
+      let l = bounds.ge(this.leftPoints, interval, compareBegin);
       l < this.leftPoints.length;
       ++l
     ) {
@@ -189,7 +189,7 @@ proto.remove = function(interval) {
         this.count -= 1;
         this.leftPoints.splice(l, 1);
         for (
-          var r = bounds.ge(this.rightPoints, interval, compareEnd);
+          let r = bounds.ge(this.rightPoints, interval, compareEnd);
           r < this.rightPoints.length;
           ++r
         ) {
@@ -207,8 +207,8 @@ proto.remove = function(interval) {
 };
 
 function reportLeftRange(arr, hi, cb) {
-  for (var i = 0; i < arr.length && arr[i][0] <= hi; ++i) {
-    var r = cb(arr[i]);
+  for (let i = 0; i < arr.length && arr[i][0] <= hi; ++i) {
+    let r = cb(arr[i]);
     if (r) {
       return r;
     }
@@ -216,8 +216,8 @@ function reportLeftRange(arr, hi, cb) {
 }
 
 function reportRightRange(arr, lo, cb) {
-  for (var i = arr.length - 1; i >= 0 && arr[i][1] >= lo; --i) {
-    var r = cb(arr[i]);
+  for (let i = arr.length - 1; i >= 0 && arr[i][1] >= lo; --i) {
+    let r = cb(arr[i]);
     if (r) {
       return r;
     }
@@ -225,8 +225,8 @@ function reportRightRange(arr, lo, cb) {
 }
 
 function reportRange(arr, cb) {
-  for (var i = 0; i < arr.length; ++i) {
-    var r = cb(arr[i]);
+  for (let i = 0; i < arr.length; ++i) {
+    let r = cb(arr[i]);
     if (r) {
       return r;
     }
@@ -236,7 +236,7 @@ function reportRange(arr, cb) {
 proto.queryPoint = function(x, cb) {
   if (x < this.mid) {
     if (this.left) {
-      var r = this.left.queryPoint(x, cb);
+      let r = this.left.queryPoint(x, cb);
       if (r) {
         return r;
       }
@@ -244,7 +244,7 @@ proto.queryPoint = function(x, cb) {
     return reportLeftRange(this.leftPoints, x, cb);
   } else if (x > this.mid) {
     if (this.right) {
-      var r = this.right.queryPoint(x, cb);
+      let r = this.right.queryPoint(x, cb);
       if (r) {
         return r;
       }
@@ -257,13 +257,13 @@ proto.queryPoint = function(x, cb) {
 
 proto.queryInterval = function(lo, hi, cb) {
   if (lo < this.mid && this.left) {
-    var r = this.left.queryInterval(lo, hi, cb);
+    let r = this.left.queryInterval(lo, hi, cb);
     if (r) {
       return r;
     }
   }
   if (hi > this.mid && this.right) {
-    var r = this.right.queryInterval(lo, hi, cb);
+    let r = this.right.queryInterval(lo, hi, cb);
     if (r) {
       return r;
     }
@@ -282,7 +282,7 @@ function compareNumbers(a, b) {
 }
 
 function compareBegin(a, b) {
-  var d = a[0] - b[0];
+  let d = a[0] - b[0];
   if (d) {
     return d;
   }
@@ -290,7 +290,7 @@ function compareBegin(a, b) {
 }
 
 function compareEnd(a, b) {
-  var d = a[1] - b[1];
+  let d = a[1] - b[1];
   if (d) {
     return d;
   }
@@ -301,19 +301,19 @@ function createIntervalTree(intervals) {
   if (intervals.length === 0) {
     return null;
   }
-  var pts = [];
-  for (var i = 0; i < intervals.length; ++i) {
+  let pts = [];
+  for (let i = 0; i < intervals.length; ++i) {
     pts.push(intervals[i][0], intervals[i][1]);
   }
   pts.sort(compareNumbers);
 
-  var mid = pts[pts.length >> 1];
+  let mid = pts[pts.length >> 1];
 
-  var leftIntervals = [];
-  var rightIntervals = [];
-  var centerIntervals = [];
-  for (var i = 0; i < intervals.length; ++i) {
-    var s = intervals[i];
+  let leftIntervals = [];
+  let rightIntervals = [];
+  let centerIntervals = [];
+  for (let i = 0; i < intervals.length; ++i) {
+    let s = intervals[i];
     if (s[1] < mid) {
       leftIntervals.push(s);
     } else if (mid < s[0]) {
@@ -324,8 +324,8 @@ function createIntervalTree(intervals) {
   }
 
   //Split center intervals
-  var leftPoints = centerIntervals;
-  var rightPoints = centerIntervals.slice();
+  let leftPoints = centerIntervals;
+  let rightPoints = centerIntervals.slice();
   leftPoints.sort(compareBegin);
   rightPoints.sort(compareEnd);
 
@@ -343,7 +343,7 @@ function IntervalTree(root) {
   this.root = root;
 }
 
-var tproto = IntervalTree.prototype;
+let tproto = IntervalTree.prototype;
 
 tproto.insert = function(interval) {
   if (this.root) {
@@ -361,7 +361,7 @@ tproto.insert = function(interval) {
 
 tproto.remove = function(interval) {
   if (this.root) {
-    var r = this.root.remove(interval);
+    let r = this.root.remove(interval);
     if (r === EMPTY) {
       this.root = null;
     }

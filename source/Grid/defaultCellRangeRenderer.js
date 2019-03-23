@@ -15,8 +15,6 @@ export default function defaultCellRangeRenderer({
   columnStopIndex,
   deferredMeasurementCache,
   horizontalOffsetAdjustment,
-  isScrolling,
-  isScrollingOptOut,
   parent, // Grid (or List or Table)
   rowSizeAndPositionManager,
   rowStartIndex,
@@ -37,7 +35,7 @@ export default function defaultCellRangeRenderer({
     columnSizeAndPositionManager.areOffsetsAdjusted() ||
     rowSizeAndPositionManager.areOffsetsAdjusted();
 
-  const canCacheStyle = !isScrolling && !areOffsetsAdjusted;
+  const canCacheStyle = !areOffsetsAdjusted;
 
   for (let rowIndex = rowStartIndex; rowIndex <= rowStopIndex; rowIndex++) {
     let rowDatum = rowSizeAndPositionManager.getSizeAndPositionOfCell(rowIndex);
@@ -91,16 +89,6 @@ export default function defaultCellRangeRenderer({
         }
       }
 
-      let cellRendererParams = {
-        columnIndex,
-        isScrolling,
-        isVisible,
-        key,
-        parent,
-        rowIndex,
-        style,
-      };
-
       let renderedCell;
 
       // Avoid re-creating cells while scrolling.
@@ -111,15 +99,20 @@ export default function defaultCellRangeRenderer({
       // This is because the offset changes slightly as scroll position changes and caching leads to stale values.
       // For more info refer to issue #395
       //
-      // If isScrollingOptOut is specified, we always cache cells.
       // For more info refer to issue #1028
       if (
-        (isScrollingOptOut || isScrolling) &&
         !horizontalOffsetAdjustment &&
         !verticalOffsetAdjustment
       ) {
         if (!cellCache[key]) {
-          cellCache[key] = cellRenderer(cellRendererParams);
+          cellCache[key] = cellRenderer(
+            rowIndex,
+            columnIndex,
+            key,
+            parent,
+            style,
+            isVisible,
+          );
         }
 
         renderedCell = cellCache[key];
@@ -127,7 +120,14 @@ export default function defaultCellRangeRenderer({
         // If the user is no longer scrolling, don't cache cells.
         // This makes dynamic cell content difficult for users and would also lead to a heavier memory footprint.
       } else {
-        renderedCell = cellRenderer(cellRendererParams);
+        renderedCell = cellRenderer(
+          rowIndex,
+          columnIndex,
+          key,
+          parent,
+          style,
+          isVisible,
+        );
       }
 
       if (renderedCell == null || renderedCell === false) {

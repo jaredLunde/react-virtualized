@@ -62,6 +62,7 @@ export default function createCellPositioner({
     initOrResetDerivedValues();
   }
 
+  cellPositioner.columnWidth = columnWidth;
   cellPositioner.reset = reset;
 
   return cellPositioner;

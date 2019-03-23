@@ -1,7 +1,7 @@
 /** @flow */
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import createCallbackMemoizer from '../utils/createCallbackMemoizer';
+import createCallbackMemoizer from './utils/createCallbackMemoizer';
 
 /**
  * Higher-order component that manages lazy-loading for "infinite" data.
@@ -115,10 +115,9 @@ export default class InfiniteLoader extends React.PureComponent {
     });
   }
 
-  _onRowsRendered({startIndex, stopIndex}) {
+  _onRowsRendered(startIndex, stopIndex) {
     this._lastRenderedStartIndex = startIndex;
     this._lastRenderedStopIndex = stopIndex;
-
     this._doStuff(startIndex, stopIndex);
   }
 
@@ -230,9 +229,9 @@ export function scanForUnloadedRanges({
 
     while (
       firstUnloadedRange.stopIndex - firstUnloadedRange.startIndex + 1 <
-        minimumBatchSize &&
+      minimumBatchSize &&
       firstUnloadedRange.startIndex > 0
-    ) {
+      ) {
       let index = firstUnloadedRange.startIndex - 1;
 
       if (!isRowLoaded({index})) {

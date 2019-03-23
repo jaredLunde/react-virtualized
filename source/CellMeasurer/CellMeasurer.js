@@ -1,14 +1,13 @@
 /** @flow */
 import * as React from 'react';
-import {findDOMNode} from 'react-dom';
 import type {CellMeasureCache} from './types';
 
 type Children = (params: {measure: () => void}) => React.Element<*>;
 
-type Cell = {
+type Cell = (
   columnIndex: number,
   rowIndex: number,
-};
+) => void;
 
 type Props = {
   cache: CellMeasureCache,
@@ -16,8 +15,8 @@ type Props = {
   columnIndex?: number,
   index?: number,
   parent: {
-    invalidateCellSizeAfterRender?: (cell: Cell) => void,
-    recomputeGridSize?: (cell: Cell) => void,
+    invalidateCellSizeAfterRender?: Cell,
+    recomputeGridSize?: Cell,
   },
   rowIndex?: number,
 };
@@ -29,6 +28,7 @@ type Props = {
  */
 export default class CellMeasurer extends React.PureComponent<Props> {
   static __internalCellMeasurerFlag = false;
+  node = React.createRef()
 
   componentDidMount() {
     this._maybeMeasureCell();
@@ -40,40 +40,21 @@ export default class CellMeasurer extends React.PureComponent<Props> {
 
   render() {
     const {children} = this.props;
-
-    return typeof children === 'function'
-      ? children({measure: this._measure})
-      : children;
+    return children(this.node, this._measure)
   }
 
   _getCellMeasurements() {
     const {cache} = this.props;
+    const node = this.node.current
 
-    const node = findDOMNode(this);
-
-    // TODO Check for a bad combination of fixedWidth and missing numeric width or vice versa with height
-
-    if (
-      node &&
-      node.ownerDocument &&
-      node.ownerDocument.defaultView &&
-      node instanceof node.ownerDocument.defaultView.HTMLElement
-    ) {
+    if (node !== null) {
       const styleWidth = node.style.width;
       const styleHeight = node.style.height;
 
-      // If we are re-measuring a cell that has already been measured,
-      // It will have a hard-coded width/height from the previous measurement.
-      // The fact that we are measuring indicates this measurement is probably stale,
-      // So explicitly clear it out (eg set to "auto") so we can recalculate.
-      // See issue #593 for more info.
-      // Even if we are measuring initially- if we're inside of a MultiGrid component,
-      // Explicitly clear width/height before measuring to avoid being tainted by another Grid.
-      // eg top/left Grid renders before bottom/right Grid
-      // Since the CellMeasurerCache is shared between them this taints derived cell size values.
       if (!cache.hasFixedWidth()) {
         node.style.width = 'auto';
       }
+
       if (!cache.hasFixedHeight()) {
         node.style.height = 'auto';
       }
@@ -103,9 +84,8 @@ export default class CellMeasurer extends React.PureComponent<Props> {
       rowIndex = this.props.index || 0,
     } = this.props;
 
-    if (!cache.has(rowIndex, columnIndex)) {
+    if (cache.has(rowIndex, columnIndex) === false) {
       const {height, width} = this._getCellMeasurements();
-
       cache.set(rowIndex, columnIndex, width, height);
 
       // If size has changed, let Grid know to re-render.
@@ -113,10 +93,7 @@ export default class CellMeasurer extends React.PureComponent<Props> {
         parent &&
         typeof parent.invalidateCellSizeAfterRender === 'function'
       ) {
-        parent.invalidateCellSizeAfterRender({
-          columnIndex,
-          rowIndex,
-        });
+        parent.invalidateCellSizeAfterRender(rowIndex, columnIndex);
       }
     }
   }
@@ -136,13 +113,6 @@ export default class CellMeasurer extends React.PureComponent<Props> {
       width !== cache.getWidth(rowIndex, columnIndex)
     ) {
       cache.set(rowIndex, columnIndex, width, height);
-
-      if (parent && typeof parent.recomputeGridSize === 'function') {
-        parent.recomputeGridSize({
-          columnIndex,
-          rowIndex,
-        });
-      }
     }
   };
 }

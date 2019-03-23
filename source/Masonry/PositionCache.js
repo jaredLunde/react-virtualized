@@ -58,29 +58,28 @@ export default class PositionCache {
     return this._intervalTree.count;
   }
 
-  get shortestColumnSize(): number {
-    const columnSizeMap = this._columnSizeMap;
-
+  get shortestColumnSize() {
+    const keys = Object.keys(this._columnSizeMap);
     let size = 0;
 
-    for (let i in columnSizeMap) {
-      let height = columnSizeMap[(i: any)];
+    for (let i = 0; i < keys.length; i++) {
+      let height = this._columnSizeMap[keys[i]];
       size = size === 0 ? height : Math.min(size, height);
     }
 
     return size;
   }
 
-  get tallestColumnSize(): number {
-    const columnSizeMap = this._columnSizeMap;
-
+  get tallestColumnSize() {
+    const keys = Object.keys(this._columnSizeMap);
     let size = 0;
 
-    for (let i in columnSizeMap) {
-      let height = columnSizeMap[(i: any)];
+    for (let i = 0; i < keys.length; i++) {
+      let height = this._columnSizeMap[keys[i]];
       size = Math.max(size, height);
     }
 
     return size;
   }
+
 }

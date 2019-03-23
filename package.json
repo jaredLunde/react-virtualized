@@ -23,7 +23,7 @@
     "prettier:diff": "prettier --list-different '{playground,source}/**/*.js'",
     "postpublish": "npm run deploy",
     "prepublishOnly": "npm run build",
-    "watch": "watch 'clear"
+    "watch": "NODE_ENV=es babel ./source -w --out-dir dist/es"
   },
   "files": [
     "dist",
