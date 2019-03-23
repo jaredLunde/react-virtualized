@@ -24,7 +24,7 @@ export default class PositionCache {
     defaultCellHeight: number,
   ): number {
     return (
-      this.tallestColumnSize
+      this.getTallestColumnSize()
       + Math.ceil((
         cellCount - this.count
       ) / columnCount)
@@ -67,7 +67,7 @@ export default class PositionCache {
     //  this.shortestColumnSize === 0 ? height : Math.min(this.shortestColumnSize, height)
   }
 
-  get shortestColumnSize (): number {
+  getShortestColumnSize (): number {
     let keys = Object.keys(this._columnSizeMap),
         size = 0,
         i = 0
@@ -80,7 +80,7 @@ export default class PositionCache {
     return size
   }
 
-  get tallestColumnSize (): number {
+  getTallestColumnSize (): number {
     return Math.max.apply(null, Object.values(this._columnSizeMap)) || 0
   }
 }

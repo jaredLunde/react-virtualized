@@ -208,7 +208,7 @@ class Masonry extends React.PureComponent<Props> {
     } = this.props
 
     const children = []
-    const shortestColumnSize = this._positionCache.shortestColumnSize
+    const shortestColumnSize = this._positionCache.getShortestColumnSize()
     const measuredCellCount = this._positionCache.count
     let startIndex = 0
     let stopIndex
