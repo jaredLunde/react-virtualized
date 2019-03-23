@@ -106,11 +106,11 @@ export default function defaultCellRangeRenderer({
       ) {
         if (!cellCache[key]) {
           cellCache[key] = cellRenderer(
+            key,
             rowIndex,
             columnIndex,
-            key,
-            parent,
             style,
+            parent,
             isVisible,
           );
         }
@@ -121,11 +121,11 @@ export default function defaultCellRangeRenderer({
         // This makes dynamic cell content difficult for users and would also lead to a heavier memory footprint.
       } else {
         renderedCell = cellRenderer(
+          key,
           rowIndex,
           columnIndex,
-          key,
-          parent,
           style,
+          parent,
           isVisible,
         );
       }

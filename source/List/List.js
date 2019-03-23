@@ -87,18 +87,18 @@ export default class List extends React.PureComponent<Props> {
     style: {},
   }
 
-  Grid: ?React.ElementRef<typeof Grid>
+  Grid = React.createRef()
 
   forceUpdateGrid () {
-    if (this.Grid) {
-      this.Grid.forceUpdate()
+    if (this.Grid.current !== null) {
+      this.Grid.current.forceUpdate()
     }
   }
 
   /** See Grid#getOffsetForCell */
   getOffsetForRow ({alignment, index}: { alignment: Alignment, index: number }) {
-    if (this.Grid) {
-      const {scrollTop} = this.Grid.getOffsetForCell({
+    if (this.Grid.current !== null) {
+      const {scrollTop} = this.Grid.current.getOffsetForCell({
         alignment,
         rowIndex: index,
         columnIndex: 0,
@@ -111,43 +111,43 @@ export default class List extends React.PureComponent<Props> {
 
   /** CellMeasurer compatibility */
   invalidateCellSizeAfterRender (columnIndex, rowIndex) {
-    if (this.Grid) {
-      this.Grid.invalidateCellSizeAfterRender(rowIndex, columnIndex)
+    if (this.Grid.current !== null) {
+      this.Grid.current.invalidateCellSizeAfterRender(rowIndex, columnIndex)
     }
   }
 
   /** See Grid#measureAllCells */
   measureAllRows () {
-    if (this.Grid) {
-      this.Grid.measureAllCells()
+    if (this.Grid.current !== null) {
+      this.Grid.current.measureAllCells()
     }
   }
 
   /** CellMeasurer compatibility */
   recomputeGridSize (rowIndex = 0, columnIndex = 0) {
-    if (this.Grid) {
-      this.Grid.recomputeGridSize(rowIndex, columnIndex)
+    if (this.Grid.current !== null) {
+      this.Grid.current.recomputeGridSize(rowIndex, columnIndex)
     }
   }
 
   /** See Grid#recomputeGridSize */
   recomputeRowHeights (rowIndex: number = 0) {
-    if (this.Grid) {
-      this.Grid.recomputeGridSize(rowIndex, 0)
+    if (this.Grid.current !== null) {
+      this.Grid.current.recomputeGridSize(rowIndex, 0)
     }
   }
 
   /** See Grid#scrollToPosition */
   scrollToPosition (scrollTop: number = 0) {
-    if (this.Grid) {
-      this.Grid.scrollToPosition({scrollTop})
+    if (this.Grid.current !== null) {
+      this.Grid.current.scrollToPosition({scrollTop})
     }
   }
 
   /** See Grid#scrollToCell */
   scrollToRow (index: number = 0) {
-    if (this.Grid) {
-      this.Grid.scrollToCell({rowIndex: index, columnIndex: 0})
+    if (this.Grid.current !== null) {
+      this.Grid.current.scrollToCell({rowIndex: index, columnIndex: 0})
     }
   }
 
@@ -164,18 +164,18 @@ export default class List extends React.PureComponent<Props> {
         columnWidth={width}
         columnCount={1}
         onSectionRendered={this._onSectionRendered}
-        ref={this._setRef}
+        ref={this.Grid}
         scrollToRow={scrollToIndex}
       />
     )
   }
 
   _cellRenderer = (
+    key,
     rowIndex,
     columnIndex,
-    key,
-    parent,
     style,
+    parent,
     isVisible,
   ) => {
     // TRICKY The style object is sometimes cached by Grid.
@@ -191,16 +191,12 @@ export default class List extends React.PureComponent<Props> {
     }
 
     return this.props.rowRenderer(
-      rowIndex,
       key,
-      parent,
+      rowIndex,
       style,
+      parent,
       isVisible,
     )
-  }
-
-  _setRef = (ref: ?React.ElementRef<typeof Grid>) => {
-    this.Grid = ref
   }
 
   _onSectionRendered = props => {

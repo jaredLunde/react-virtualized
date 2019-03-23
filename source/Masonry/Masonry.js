@@ -146,19 +146,14 @@ class Masonry extends React.PureComponent<Props> {
 
       // Query external layout logic for position of newly-measured cells
       this._populatePositionCache(startIndex, stopIndex)
-
       this.forceUpdate()
     }
   }
 
   _getEstimatedTotalHeight () {
     const {cellCount, cellMeasurerCache, cellPositioner, width} = this.props
+    const estimatedColumnCount = Math.max(1, Math.floor(width / cellPositioner.columnWidth))
 
-    const estimatedColumnCount = Math.max(
-      1,
-      Math.floor(width / cellPositioner.columnWidth),
-    )
-    
     return this._positionCache.estimateTotalHeight(
       cellCount,
       estimatedColumnCount,
@@ -168,8 +163,8 @@ class Masonry extends React.PureComponent<Props> {
 
   _invokeOnCellsRenderedCallback () {
     if (
-      this._startIndexMemoized !== this._startIndex ||
-      this._stopIndexMemoized !== this._stopIndex
+      this._startIndexMemoized !== this._startIndex
+      || this._stopIndexMemoized !== this._stopIndex
     ) {
       this.props.onCellsRendered(this._startIndex, this._stopIndex)
       this._startIndexMemoized = this._startIndex
@@ -195,6 +190,7 @@ class Masonry extends React.PureComponent<Props> {
   render () {
     const {
       cellCount,
+      cellPositioner,
       cellMeasurerCache,
       cellRenderer,
       className,
@@ -210,7 +206,6 @@ class Masonry extends React.PureComponent<Props> {
       scrollTop,
     } = this.props
 
-
     const children = []
     const shortestColumnSize = this._positionCache.shortestColumnSize
     const measuredCellCount = this._positionCache.count
@@ -221,7 +216,7 @@ class Masonry extends React.PureComponent<Props> {
       Math.max(0, scrollTop - overscanBy),
       height + overscanBy * 2,
       (index: number, left: number, top: number) => {
-        if (typeof stopIndex === 'undefined') {
+        if (stopIndex === void 0) {
           startIndex = index
           stopIndex = index
         }
@@ -232,9 +227,8 @@ class Masonry extends React.PureComponent<Props> {
 
         children.push(
           cellRenderer(
-            index, // index
             keyMapper(index), // key
-            this, // parent
+            index, // index
             {
               top,
               left,
@@ -242,6 +236,7 @@ class Masonry extends React.PureComponent<Props> {
               width: this._positionCache.columnWidth,
               position: 'absolute',
             }, // style
+            this, // parent
           ),
         )
       },
@@ -257,22 +252,24 @@ class Masonry extends React.PureComponent<Props> {
           ) /
           cellMeasurerCache.defaultHeight *
           width /
-          cellMeasurerCache.defaultWidth,
+          cellPositioner.columnWidth,
         ),
       )
 
-      for (let index = measuredCellCount; index < measuredCellCount + batchSize; index++) {
-        stopIndex = index
+      let index = measuredCellCount
 
+      for (; index < measuredCellCount + batchSize; index++) {
         children.push(
           cellRenderer(
-            index, // index
             keyMapper(index), //key
+            index, // index
+            getCachedWidth(cellPositioner.columnWidth), // style
             this, // parent
-            getCachedWidth(this._positionCache.columnWidth), // style
           ),
         )
       }
+
+      stopIndex = index
     }
 
     this._startIndex = startIndex
@@ -280,9 +277,9 @@ class Masonry extends React.PureComponent<Props> {
 
     return (
       <div
-        aria-label={this.props['aria-label']}
-        className={clsx('ReactVirtualized__Masonry', className)}
         id={id}
+        className={clsx('ReactVirtualized__Masonry', className)}
+        aria-label={this.props['aria-label']}
         role={role}
         style={
           typeof style === 'object' && style !== null

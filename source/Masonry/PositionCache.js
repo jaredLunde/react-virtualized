@@ -1,5 +1,5 @@
 /** @flow */
-import createIntervalTree from '../vendor/intervalTree'
+import createIntervalTree from './intervalTree'
 
 
 type RenderCallback = (index: number, left: number, top: number) => void;
@@ -8,23 +8,26 @@ type RenderCallback = (index: number, left: number, top: number) => void;
 //   O(log(n)) lookup of cells to render for a given viewport size
 //   O(1) lookup of shortest measured column (so we know when to enter phase 1)
 export default class PositionCache {
-  tallestColumnSize = 0
-  shortestColumnSize = 0
+  //tallestColumnSize = 0
+  //shortestColumnSize = 0
+  count = 0
   // Tracks the height of each column
-  _columnSizeMap: {[x: number]: number} = {}
+  _columnSizeMap: { [x: number]: number } = {}
   // Store tops and bottoms of each cell for fast intersection lookup.
   _intervalTree = createIntervalTree()
   // Maps cell index to x coordinates for quick lookup.
-  _leftMap: {[index: number]: number} = {}
+  _leftMap: { [index: number]: number } = {}
 
   estimateTotalHeight (
     cellCount: number,
     columnCount: number,
-    defaultCellHeight: number
+    defaultCellHeight: number,
   ): number {
     return (
       this.tallestColumnSize
-      + Math.ceil((cellCount - this.count) / columnCount)
+      + Math.ceil((
+        cellCount - this.count
+      ) / columnCount)
       * defaultCellHeight
     )
   }
@@ -58,12 +61,26 @@ export default class PositionCache {
       columnSizeMap[left] = height
     }
 
-    this.tallestColumnSize = Math.max(this.tallestColumnSize, height)
-    this.shortestColumnSize =
-      this.shortestColumnSize === 0 ? height : Math.min(this.shortestColumnSize, height)
+    this.count = this._intervalTree.count
+    //this.tallestColumnSize = Math.max(this.tallestColumnSize, height)
+    //this.shortestColumnSize =
+    //  this.shortestColumnSize === 0 ? height : Math.min(this.shortestColumnSize, height)
   }
 
-  get count (): number {
-    return this._intervalTree.count
+  get shortestColumnSize (): number {
+    let keys = Object.keys(this._columnSizeMap),
+        size = 0,
+        i = 0
+
+    for (; i < keys.length; i++) {
+      let height = this._columnSizeMap[keys[i]]
+      size = size === 0 ? height : size < height ? size : height
+    }
+
+    return size
+  }
+
+  get tallestColumnSize (): number {
+    return Math.max.apply(null, Object.values(this._columnSizeMap)) || 0
   }
 }

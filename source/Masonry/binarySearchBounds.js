@@ -7,10 +7,10 @@
  * Issue reported here: https://github.com/mikolalysenko/binary-search-bounds/issues/5
  **/
 
-function _GEA(a, l, h, y) {
-  var i = h + 1;
+const _GEA = (a, l, h, y) => {
+  let i = h + 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (x >= y) {
       i = m;
@@ -21,10 +21,10 @@ function _GEA(a, l, h, y) {
   }
   return i;
 }
-function _GEP(a, l, h, y, c) {
-  var i = h + 1;
+const _GEP = (a, l, h, y, c) => {
+  let i = h + 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (c(x, y) >= 0) {
       i = m;
@@ -35,7 +35,7 @@ function _GEP(a, l, h, y, c) {
   }
   return i;
 }
-function dispatchBsearchGE(a, y, c, l, h) {
+const dispatchBsearchGE = (a, y, c, l, h) => {
   if (typeof c === 'function') {
     return _GEP(
       a,
@@ -54,10 +54,10 @@ function dispatchBsearchGE(a, y, c, l, h) {
   }
 }
 
-function _GTA(a, l, h, y) {
-  var i = h + 1;
+const _GTA = (a, l, h, y) => {
+  let i = h + 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (x > y) {
       i = m;
@@ -68,10 +68,10 @@ function _GTA(a, l, h, y) {
   }
   return i;
 }
-function _GTP(a, l, h, y, c) {
-  var i = h + 1;
+const _GTP = (a, l, h, y, c) => {
+  let i = h + 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (c(x, y) > 0) {
       i = m;
@@ -82,7 +82,7 @@ function _GTP(a, l, h, y, c) {
   }
   return i;
 }
-function dispatchBsearchGT(a, y, c, l, h) {
+const dispatchBsearchGT = (a, y, c, l, h) => {
   if (typeof c === 'function') {
     return _GTP(
       a,
@@ -101,10 +101,10 @@ function dispatchBsearchGT(a, y, c, l, h) {
   }
 }
 
-function _LTA(a, l, h, y) {
-  var i = l - 1;
+const _LTA = (a, l, h, y) => {
+  let i = l - 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (x < y) {
       i = m;
@@ -115,10 +115,10 @@ function _LTA(a, l, h, y) {
   }
   return i;
 }
-function _LTP(a, l, h, y, c) {
-  var i = l - 1;
+const _LTP = (a, l, h, y, c) => {
+  let i = l - 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (c(x, y) < 0) {
       i = m;
@@ -129,7 +129,7 @@ function _LTP(a, l, h, y, c) {
   }
   return i;
 }
-function dispatchBsearchLT(a, y, c, l, h) {
+const dispatchBsearchLT = (a, y, c, l, h) => {
   if (typeof c === 'function') {
     return _LTP(
       a,
@@ -148,10 +148,10 @@ function dispatchBsearchLT(a, y, c, l, h) {
   }
 }
 
-function _LEA(a, l, h, y) {
-  var i = l - 1;
+const _LEA = (a, l, h, y) => {
+  let i = l - 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (x <= y) {
       i = m;
@@ -162,10 +162,10 @@ function _LEA(a, l, h, y) {
   }
   return i;
 }
-function _LEP(a, l, h, y, c) {
-  var i = l - 1;
+const _LEP = (a, l, h, y, c) => {
+  let i = l - 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (c(x, y) <= 0) {
       i = m;
@@ -176,7 +176,7 @@ function _LEP(a, l, h, y, c) {
   }
   return i;
 }
-function dispatchBsearchLE(a, y, c, l, h) {
+const dispatchBsearchLE = (a, y, c, l, h) => {
   if (typeof c === 'function') {
     return _LEP(
       a,
@@ -195,10 +195,10 @@ function dispatchBsearchLE(a, y, c, l, h) {
   }
 }
 
-function _EQA(a, l, h, y) {
+const _EQA = (a, l, h, y) => {
   l - 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
     if (x === y) {
       return m;
@@ -210,12 +210,12 @@ function _EQA(a, l, h, y) {
   }
   return -1;
 }
-function _EQP(a, l, h, y, c) {
+const _EQP = (a, l, h, y, c) => {
   l - 1;
   while (l <= h) {
-    var m = (l + h) >>> 1,
+    let m = (l + h) >>> 1,
       x = a[m];
-    var p = c(x, y);
+    let p = c(x, y);
     if (p === 0) {
       return m;
     } else if (p <= 0) {
@@ -226,7 +226,7 @@ function _EQP(a, l, h, y, c) {
   }
   return -1;
 }
-function dispatchBsearchEQ(a, y, c, l, h) {
+const dispatchBsearchEQ = (a, y, c, l, h) => {
   if (typeof c === 'function') {
     return _EQP(
       a,
