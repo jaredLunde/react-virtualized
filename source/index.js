@@ -6,8 +6,5 @@ export {
   Grid,
 } from './Grid'
 export InfiniteLoader from './InfiniteLoader'
-export {List} from './List'
-export {
-  createCellPositioner as createMasonryCellPositioner,
-  Masonry,
-} from './Masonry'
+export List from './List'
+export {Masonry} from './Masonry'

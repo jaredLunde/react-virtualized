@@ -1,8 +1,8 @@
 // @flow
 
 export interface CellMeasureCache {
-  hasFixedWidth(): boolean;
-  hasFixedHeight(): boolean;
+  hasFixedWidth: boolean;
+  hasFixedHeight: boolean;
   has(rowIndex: number, columnIndex: number): boolean;
   set(
     rowIndex: number,

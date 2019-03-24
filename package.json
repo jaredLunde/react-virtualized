@@ -23,7 +23,7 @@
     "prettier:diff": "prettier --list-different '{playground,source}/**/*.js'",
     "postpublish": "npm run deploy",
     "prepublishOnly": "npm run build",
-    "watch": "NODE_ENV=es babel ./source -w --out-dir dist/es"
+    "watch": "rm -r dist/es && NODE_ENV=es babel ./source -w --out-dir dist/es"
   },
   "files": [
     "dist",
@@ -79,8 +79,10 @@
     "watch": "^1.0.2"
   },
   "dependencies": {
+    "@render-props/utils": "^0.2.12",
     "clsx": "^1.0.1",
     "dom-helpers": "^2.4.0 || ^3.0.0",
+    "empty": "^0.10.1",
     "loose-envify": "^1.3.0",
     "prop-types": "^15.6.0",
     "react-lifecycles-compat": "^3.0.4"

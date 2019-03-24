@@ -6,23 +6,16 @@ type createCellPositionerParams = {
   cellMeasurerCache: CellMeasurerCache,
   columnCount: number,
   columnWidth: number,
-  spacer?: number,
-};
-
-type resetParams = {
-  columnCount: number,
-  columnWidth: number,
-  spacer?: number,
+  columnSpacer?: number,
 };
 
 export default function createCellPositioner ({
   cellMeasurerCache,
   columnCount,
   columnWidth,
-  spacer = 0,
+  columnSpacer = 0,
 }: createCellPositionerParams): Positioner {
   let columnHeights
-
   initOrResetDerivedValues()
 
   function cellPositioner (index) {
@@ -34,13 +27,11 @@ export default function createCellPositioner ({
       }
     }
 
-    const left = columnIndex * (
-      columnWidth + spacer
-    )
+    const left = columnIndex * (columnWidth + columnSpacer)
     const top = columnHeights[columnIndex] || 0
 
     columnHeights[columnIndex] =
-      top + cellMeasurerCache.getHeight(index) + spacer
+      top + cellMeasurerCache.getHeight(index) + columnSpacer
 
     return {left, top}
   }
@@ -54,16 +45,13 @@ export default function createCellPositioner ({
     }
   }
 
-  function reset (params: resetParams): void {
-    columnCount = params.columnCount
-    columnWidth = params.columnWidth
-    spacer = params.spacer
-
+  function reset (columnCount_, columnWidth_, columnSpacer_): void {
+    columnCount = columnCount_
+    columnWidth = columnWidth_
+    columnSpacer = columnSpacer_
     initOrResetDerivedValues()
   }
 
-  cellPositioner.columnWidth = columnWidth
   cellPositioner.reset = reset
-
   return cellPositioner
 }

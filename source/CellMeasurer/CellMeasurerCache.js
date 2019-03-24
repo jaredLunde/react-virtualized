@@ -128,7 +128,7 @@ export default class CellMeasurerCache implements CellMeasureCache {
   }
 
   getWidth (rowIndex: number, columnIndex: number = 0): number {
-    if (this.hasFixedWidth) {
+    if (this.hasFixedWidth === true) {
       return this.defaultWidth
     }
     else {
@@ -140,7 +140,7 @@ export default class CellMeasurerCache implements CellMeasureCache {
   }
 
   getHeight (rowIndex: number, columnIndex: number = 0): number {
-    if (this.hasFixedHeight) {
+    if (this.hasFixedHeight === true) {
       return this.defaultHeight
     }
     else {
@@ -182,7 +182,7 @@ export default class CellMeasurerCache implements CellMeasureCache {
     // Pre-cache these derived values for faster lookup later.
     // Reads are expected to occur more frequently than writes in this case.
     // Only update non-fixed dimensions though to avoid doing unnecessary work.
-    if (!this.hasFixedWidth) {
+    if (this.hasFixedWidth === false) {
       let columnWidth = 0, i = 0
       for (; i < this._rowCount; i++) {
         columnWidth = Math.max(columnWidth, this.getWidth(i, columnIndex))
@@ -190,7 +190,7 @@ export default class CellMeasurerCache implements CellMeasureCache {
       const columnKey = this._keyMapper(0, columnIndex)
       this._columnWidthCache[columnKey] = columnWidth
     }
-    if (!this.hasFixedHeight) {
+    if (this.hasFixedHeight === false) {
       let rowHeight = 0, i = 0
       for (; i < this._columnCount; i++) {
         rowHeight = Math.max(rowHeight, this.getHeight(rowIndex, i))

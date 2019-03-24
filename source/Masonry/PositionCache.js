@@ -62,25 +62,24 @@ export default class PositionCache {
     }
 
     this.count = this._intervalTree.count
-    //this.tallestColumnSize = Math.max(this.tallestColumnSize, height)
-    //this.shortestColumnSize =
-    //  this.shortestColumnSize === 0 ? height : Math.min(this.shortestColumnSize, height)
   }
 
   getShortestColumnSize (): number {
     let keys = Object.keys(this._columnSizeMap),
-        size = 0,
-        i = 0
+        size = this._columnSizeMap[keys[0]],
+        i = 1
 
-    for (; i < keys.length; i++) {
-      let height = this._columnSizeMap[keys[i]]
-      size = size === 0 ? height : size < height ? size : height
+    if (size !== void 0 && keys.length > 1) {
+      for (; i < keys.length; i++) {
+        let height = this._columnSizeMap[keys[i]]
+        size = size < height ? size : height
+      }
     }
 
-    return size
+    return size || 0
   }
 
   getTallestColumnSize (): number {
-    return Math.max.apply(null, Object.values(this._columnSizeMap)) || 0
+    return Math.max(0, Math.max.apply(null, Object.values(this._columnSizeMap)))
   }
 }

@@ -39,10 +39,6 @@ export default class CellMeasurer extends React.PureComponent<Props> {
     this._maybeMeasureCell()
   }
 
-  render () {
-    return this.props.children(this.node, this._measure)
-  }
-
   _getCellMeasurements () {
     const {cache} = this.props,
           node = this.node.current
@@ -101,6 +97,10 @@ export default class CellMeasurer extends React.PureComponent<Props> {
     ) {
       cache.set(rowIndex, columnIndex, width, height)
     }
+  }
+
+  render () {
+    return this.props.children(this.node, this._measure)
   }
 }
 

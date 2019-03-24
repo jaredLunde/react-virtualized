@@ -1,16 +1,15 @@
 /** @flow */
 import clsx_ from 'clsx'
 import * as React from 'react'
+import {strictShallowEqual} from '@render-props/utils'
+import createCellPositioner from './createCellPositioner'
 import PositionCache from './PositionCache'
 import memoizeOne from '../utils/memoizeOne'
 
 
 type Props = {
-  autoHeight: boolean,
   cellCount: number,
   cellMeasurerCache: CellMeasurerCache,
-  cellPositioner: Positioner,
-  cellRenderer: CellRenderer,
   className: ?string,
   height: number,
   id: ?string,
@@ -20,9 +19,13 @@ type Props = {
   role: string,
   isScrolling: boolean,
   scrollTop: number,
-  style: mixed,
+  style: ?mixed,
   tabIndex: number,
   width: number,
+  columnWidth: number,
+  columnCount: number,
+  columnSpacer: number,
+  children: CellRenderer,
 };
 
 const clsx = memoizeOne(clsx_)
@@ -81,7 +84,6 @@ const getCachedWidth = memoizeOne(width => ({width}))
  */
 class Masonry extends React.PureComponent<Props> {
   static defaultProps = {
-    autoHeight: false,
     keyMapper: identity,
     onCellsRendered: noop,
     overscanBy: 20,
@@ -96,6 +98,26 @@ class Masonry extends React.PureComponent<Props> {
   _startIndexMemoized: ?number = null
   _stopIndex: ?number = null
   _stopIndexMemoized: ?number = null
+
+  constructor (props) {
+    super(props)
+    this._cellPositioner = createCellPositioner(props)
+  }
+
+  shouldComponentUpdate (nextProps) {
+    const {columnCount, columnWidth, columnSpacer} = nextProps
+
+    if (
+      columnCount !== this.props.columnCount
+      || columnWidth !== this.props.columnWidth
+      || columnSpacer !== this.props.columnSpacer
+    ) {
+      this._cellPositioner.reset(columnCount, columnWidth, columnSpacer)
+      return true
+    }
+
+    return strictShallowEqual(nextProps, this.props) === false
+  }
 
   clearCellPositions () {
     this._positionCache = new PositionCache()
@@ -133,8 +155,21 @@ class Masonry extends React.PureComponent<Props> {
   }
 
   componentDidUpdate (prevProps: Props) {
+    this._maybeRecomputeCellPositions(prevProps)
     this._checkInvalidateOnUpdate()
     this._invokeOnCellsRenderedCallback()
+  }
+
+  _maybeRecomputeCellPositions (prevProps) {
+    const {columnCount, columnWidth, columnSpacer} = this.props
+
+    if (
+      columnCount !== prevProps.columnCount
+      || columnWidth !== prevProps.columnWidth
+      || columnSpacer !== prevProps.columnSpacer
+    ) {
+      this.recomputeCellPositions()
+    }
   }
 
   _checkInvalidateOnUpdate () {
@@ -152,8 +187,8 @@ class Masonry extends React.PureComponent<Props> {
   }
 
   _getEstimatedTotalHeight () {
-    const {cellCount, cellMeasurerCache, cellPositioner, width} = this.props
-    const estimatedColumnCount = Math.max(1, Math.floor(width / cellPositioner.columnWidth))
+    const {cellCount, cellMeasurerCache, columnWidth, width} = this.props
+    const estimatedColumnCount = Math.max(1, Math.floor(width / columnWidth))
 
     return this._positionCache.estimateTotalHeight(
       cellCount,
@@ -174,10 +209,10 @@ class Masonry extends React.PureComponent<Props> {
   }
 
   _populatePositionCache (startIndex: number, stopIndex: number) {
-    const {cellMeasurerCache, cellPositioner} = this.props
+    const {cellMeasurerCache} = this.props
 
     for (let index = startIndex; index <= stopIndex; index++) {
-      const {left, top} = cellPositioner(index)
+      const {left, top} = this._cellPositioner(index)
 
       this._positionCache.setPosition(
         index,
@@ -190,10 +225,9 @@ class Masonry extends React.PureComponent<Props> {
 
   render () {
     const {
+      children: cellRenderer,
       cellCount,
-      cellPositioner,
       cellMeasurerCache,
-      cellRenderer,
       className,
       height,
       id,
@@ -203,6 +237,7 @@ class Masonry extends React.PureComponent<Props> {
       style,
       tabIndex,
       width,
+      columnWidth,
       isScrolling,
       scrollTop,
     } = this.props
@@ -233,8 +268,8 @@ class Masonry extends React.PureComponent<Props> {
             {
               top,
               left,
+              width: columnWidth,
               height: cellMeasurerCache.getHeight(index),
-              width: this._positionCache.columnWidth,
               position: 'absolute',
             }, // style
             this, // parent
@@ -253,7 +288,7 @@ class Masonry extends React.PureComponent<Props> {
           ) /
           cellMeasurerCache.defaultHeight *
           width /
-          cellPositioner.columnWidth,
+          columnWidth,
         ),
       )
 
@@ -264,7 +299,7 @@ class Masonry extends React.PureComponent<Props> {
           cellRenderer(
             keyMapper(index), //key
             index, // index
-            getCachedWidth(cellPositioner.columnWidth), // style
+            getCachedWidth(columnWidth), // style
             this, // parent
           ),
         )

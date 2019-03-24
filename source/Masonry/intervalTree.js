@@ -17,16 +17,14 @@ let NOT_FOUND = 0,
 
 function IntervalTreeNode (mid, left, right, leftPoints, rightPoints) {
   this.mid = mid
-  this.left = left
-  this.right = right
+  this.left = left === void 0 ? null : left
+  this.right = right === void 0 ? null : right
   this.leftPoints = leftPoints
   this.rightPoints = rightPoints
   this.count =
-    (
-      left ? left.count : 0
-    ) + (
-      right ? right.count : 0
-    ) + leftPoints.length
+    (left !== null ? left.count : 0)
+    + (right !== null ? right.count : 0)
+    + leftPoints.length
 }
 
 let proto = IntervalTreeNode.prototype
@@ -69,10 +67,10 @@ const rebuildWithoutInterval = (node, interval) => {
 
 proto.intervals = function (result) {
   result.push.apply(result, this.leftPoints)
-  if (this.left) {
+  if (this.left !== null) {
     this.left.intervals(result)
   }
-  if (this.right) {
+  if (this.right !== null) {
     this.right.intervals(result)
   }
   return result
@@ -82,7 +80,7 @@ proto.insert = function (interval) {
   let weight = this.count - this.leftPoints.length
   this.count += 1
   if (interval[1] < this.mid) {
-    if (this.left) {
+    if (this.left !== null) {
       if (4 * (
         this.left.count + 1
       ) > 3 * (
@@ -99,7 +97,7 @@ proto.insert = function (interval) {
     }
   }
   else if (interval[0] > this.mid) {
-    if (this.right) {
+    if (this.right !== null) {
       if (4 * (
         this.right.count + 1
       ) > 3 * (
@@ -126,7 +124,7 @@ proto.insert = function (interval) {
 proto.remove = function (interval) {
   let weight = this.count - this.leftPoints
   if (interval[1] < this.mid) {
-    if (!this.left) {
+    if (this.left === null) {
       return NOT_FOUND
     }
     let rw = this.right ? this.right.count : 0
@@ -147,7 +145,7 @@ proto.remove = function (interval) {
     return r
   }
   else if (interval[0] > this.mid) {
-    if (!this.right) {
+    if (this.right === null) {
       return NOT_FOUND
     }
     let lw = this.left ? this.left.count : 0
@@ -177,7 +175,7 @@ proto.remove = function (interval) {
       }
     }
     if (this.leftPoints.length === 1 && this.leftPoints[0] === interval) {
-      if (this.left && this.right) {
+      if (this.left !== null && this.right !== null) {
         let p = this
         let n = this.left
         while (n.right) {
@@ -205,7 +203,7 @@ proto.remove = function (interval) {
           ) +
           this.leftPoints.length
       }
-      else if (this.left) {
+      else if (this.left !== null) {
         copy(this, this.left)
       }
       else {
@@ -272,7 +270,7 @@ const reportRange = (arr, cb) => {
 
 proto.queryPoint = function (x, cb) {
   if (x < this.mid) {
-    if (this.left) {
+    if (this.left !== null) {
       let r = this.left.queryPoint(x, cb)
       if (r) {
         return r
@@ -281,7 +279,7 @@ proto.queryPoint = function (x, cb) {
     return reportLeftRange(this.leftPoints, x, cb)
   }
   else if (x > this.mid) {
-    if (this.right) {
+    if (this.right !== null) {
       let r = this.right.queryPoint(x, cb)
       if (r) {
         return r
@@ -295,13 +293,13 @@ proto.queryPoint = function (x, cb) {
 }
 
 proto.queryInterval = function (lo, hi, cb) {
-  if (lo < this.mid && this.left) {
+  if (lo < this.mid && this.left !== null) {
     let r = this.left.queryInterval(lo, hi, cb)
     if (r) {
       return r
     }
   }
-  if (hi > this.mid && this.right) {
+  if (hi > this.mid && this.right !== null) {
     let r = this.right.queryInterval(lo, hi, cb)
     if (r) {
       return r
@@ -383,13 +381,13 @@ const createIntervalTree = (intervals) => {
 
 //User friendly wrapper that makes it possible to support empty trees
 function IntervalTree (root) {
-  this.root = root
+  this.root = root || null
 }
 
 let tproto = IntervalTree.prototype
 
 tproto.insert = function (interval) {
-  if (this.root) {
+  if (this.root !== null) {
     this.root.insert(interval)
   }
   else {
@@ -404,7 +402,7 @@ tproto.insert = function (interval) {
 }
 
 tproto.remove = function (interval) {
-  if (this.root) {
+  if (this.root !== null) {
     let r = this.root.remove(interval)
     if (r === EMPTY) {
       this.root = null
@@ -415,20 +413,20 @@ tproto.remove = function (interval) {
 }
 
 tproto.queryPoint = function (p, cb) {
-  if (this.root) {
+  if (this.root !== null) {
     return this.root.queryPoint(p, cb)
   }
 }
 
 tproto.queryInterval = function (lo, hi, cb) {
-  if (lo <= hi && this.root) {
+  if (lo <= hi && this.root !== null) {
     return this.root.queryInterval(lo, hi, cb)
   }
 }
 
 Object.defineProperty(tproto, 'count', {
   get: function () {
-    if (this.root) {
+    if (this.root !== null) {
       return this.root.count
     }
     return 0
@@ -437,7 +435,7 @@ Object.defineProperty(tproto, 'count', {
 
 Object.defineProperty(tproto, 'intervals', {
   get: function () {
-    if (this.root) {
+    if (this.root !== null) {
       return this.root.intervals([])
     }
     return []
@@ -445,7 +443,7 @@ Object.defineProperty(tproto, 'intervals', {
 })
 
 const createWrapper = (intervals) => {
-  if (!intervals || intervals.length === 0) {
+  if (intervals === void 0 || intervals === null || intervals.length === 0) {
     return new IntervalTree(null)
   }
   return new IntervalTree(createIntervalTree(intervals))
