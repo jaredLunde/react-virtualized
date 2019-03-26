@@ -7,4 +7,4 @@ export {
 } from './Grid'
 export InfiniteLoader from './InfiniteLoader'
 export List from './List'
-export {Masonry} from './Masonry'
+export {Masonry, MasonryObserver, MasonryObserver2} from './Masonry'

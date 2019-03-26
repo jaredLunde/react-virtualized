@@ -1,8 +1,4 @@
-/** @flow */
 import createIntervalTree from './intervalTree'
-
-
-type RenderCallback = (index: number, left: number, top: number) => void;
 
 // Position cache requirements:
 //   O(log(n)) lookup of cells to render for a given viewport size
@@ -12,32 +8,22 @@ export default class PositionCache {
   //shortestColumnSize = 0
   count = 0
   // Tracks the height of each column
-  _columnSizeMap: { [x: number]: number } = {}
+  _columnSizeMap  = {}
   // Store tops and bottoms of each cell for fast intersection lookup.
   _intervalTree = createIntervalTree()
   // Maps cell index to x coordinates for quick lookup.
-  _leftMap: { [index: number]: number } = {}
+  _leftMap = {}
 
-  estimateTotalHeight (
-    cellCount: number,
-    columnCount: number,
-    defaultCellHeight: number,
-  ): number {
+  estimateTotalHeight (cellCount, columnCount, defaultItemHeight) {
     return (
       this.getTallestColumnSize()
-      + Math.ceil((
-        cellCount - this.count
-      ) / columnCount)
-      * defaultCellHeight
+      + Math.ceil((cellCount - this.count) / columnCount)
+      * defaultItemHeight
     )
   }
 
   // Render all cells visible within the viewport range defined.
-  range (
-    scrollTop: number,
-    clientHeight: number,
-    renderCallback: RenderCallback,
-  ): void {
+  range (scrollTop, clientHeight, renderCallback) {
     this._intervalTree.queryInterval(
       scrollTop,
       scrollTop + clientHeight,
@@ -45,7 +31,7 @@ export default class PositionCache {
     )
   }
 
-  setPosition (index: number, left: number, top: number, height: number): void {
+  setPosition (index, left, top, height) {
     this._intervalTree.insert([top, top + height, index])
     this._leftMap[index] = left
 
@@ -79,7 +65,7 @@ export default class PositionCache {
     return size || 0
   }
 
-  getTallestColumnSize (): number {
+  getTallestColumnSize () {
     return Math.max(0, Math.max.apply(null, Object.values(this._columnSizeMap)))
   }
 }

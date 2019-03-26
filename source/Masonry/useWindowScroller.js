@@ -2,23 +2,21 @@ import {useState, useEffect, useCallback, useRef} from 'react'
 import emptyArr from 'empty/array'
 import emptyObj from 'empty/object'
 import {requestTimeout, clearRequestTimeout} from '@render-props/utils'
-import useViewportScroll from './useViewportScroll'
-import useViewportSize from './useViewportSize'
+import useWindowScroll from '@react-hook/window-scroll'
+import useWindowSize from '@react-hook/window-size'
 
 
-const defaultSizeOpt = {wait: 120, immediate: false}
-const defaultScrollOpt = {fps: 16}
+const defaultSizeOpt = {wait: 120, leading: false}
+const defaultScrollFps = 12
 
 export default (opt = emptyObj) => {
-  const scrollY = useViewportScroll(0, opt.scroll || defaultScrollOpt)
-  const [width, height] = useViewportSize(
+  const scrollY = useWindowScroll(opt.scroll?.fps || defaultScrollFps)
+  const [windowWidth, windowHeight] = useWindowSize(
     opt?.size?.initialWidth || 360,
     opt?.size?.initialHeight || 720,
     opt.size || defaultSizeOpt
   )
   const [state, setState] = useState({isScrolling: false})
-  const element = useRef(null)
-  const offsetTop = useRef(0)
   const isScrollingTimeout = useRef(null)
   const unsetIsScrolling  = useCallback(
     () => {
@@ -30,16 +28,6 @@ export default (opt = emptyObj) => {
 
   useEffect(
     () => {
-      if (element.current !== null) {
-        offsetTop.current = element.current.offsetTop
-      }
-    },
-    [element.current, width, height]
-  )
-
-
-  useEffect(
-    () => {
       if (state.isScrolling === false) {
         setState({isScrolling: true})
       }
@@ -48,21 +36,17 @@ export default (opt = emptyObj) => {
         clearRequestTimeout(isScrollingTimeout.current)
       }
 
-      isScrollingTimeout.current = requestTimeout(unsetIsScrolling, 240)
+      isScrollingTimeout.current = requestTimeout(unsetIsScrolling, 120)
       return () =>
         isScrollingTimeout.current !== null && clearRequestTimeout(isScrollingTimeout.current)
     },
     [scrollY]
   )
 
-  return [
-    element,
-    {
-      width,
-      height,
-      scrollY,
-      scrollTop: Math.max(0, scrollY - offsetTop.current),
-      isScrolling: state.isScrolling
-    }
-  ]
+  return {
+    windowWidth,
+    windowHeight,
+    scrollY,
+    isScrolling: state.isScrolling
+  }
 }
