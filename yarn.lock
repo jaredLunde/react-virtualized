@@ -4281,6 +4281,13 @@ tough-cookie@~2.3.0:
   dependencies:
     punycode "^1.4.1"
 
+trie-memoize@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/trie-memoize/-/trie-memoize-1.0.4.tgz#43d7f771d748dfb10a3ce0a50c774f983a1b3d24"
+  integrity sha512-s0BrFbwDvwT+0068rLZB6Ydg9rAWR+CIh0BWKBAcFRzRs0D3UrCoXBmGhFVcrVOjO7LpfINuO4BT5KE3gecygA==
+  dependencies:
+    is-plain-object "^2.0.4"
+
 trim-repeated@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/trim-repeated/-/trim-repeated-1.0.0.tgz#e3646a2ea4e891312bf7eace6cfb05380bc01c21"

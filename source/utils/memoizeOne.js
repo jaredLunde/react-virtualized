@@ -1,16 +1,22 @@
-const defaultStringify = args => `${args[0]},${args[1]},${args[2]},${args[3]}`
+import emptyArr from 'empty/array'
 
-export default (fn, stringify = defaultStringify) => {
-  let args, value
+
+const defaultIsEqual = (args, prevArgs) => (
+  args[0] === prevArgs[0]
+  && args[1] === prevArgs[1]
+  && args[2] === prevArgs[2]
+  && args[3] === prevArgs[3]
+)
+
+export default (fn, isEqual = defaultIsEqual) => {
+  let args = emptyArr, value
 
   return function () {
-    const argString = stringify(arguments)
-
-    if (argString === args) {
+    if (isEqual(arguments, args) === true) {
       return value
     }
 
-    args = argString
+    args = arguments
     value = fn.apply(this, arguments)
     return value
   }

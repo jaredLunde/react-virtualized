@@ -1,16 +1,19 @@
-import createIntervalTree from './intervalTree'
+import IntervalTree from './IntervalTree'
 
 // Position cache requirements:
 //   O(log(n)) lookup of cells to render for a given viewport size
 //   O(1) lookup of shortest measured column (so we know when to enter phase 1)
 const createPositionCache = () => {
   let count = 0
+  // Store tops and bottoms of each cell for fast intersection lookup.
+  let intervalTree = new IntervalTree()
+  // Tracks the intervals that were inserted into the interval tree so they can be
+  // removed when positions are updated
+  let cachedIntervals = new Map()
+  // Maps cell index to x coordinates for quick lookup.
+  let leftMap = new Map()
   // Tracks the height of each column
   let columnSizeMap  = {}
-  // Store tops and bottoms of each cell for fast intersection lookup.
-  let intervalTree = createIntervalTree()
-  // Maps cell index to x coordinates for quick lookup.
-  let leftMap = {}
 
   const estimateTotalHeight = (itemCount, columnCount, defaultItemHeight) => (
     getTallestColumnSize()
@@ -23,16 +26,18 @@ const createPositionCache = () => {
     intervalTree.queryInterval(
       scrollTop,
       scrollTop + clientHeight,
-      ([top, _, index]) => renderCallback(index, leftMap[index], top),
+      ([top, _, index]) => renderCallback(index, leftMap.get(index), top),
     )
   }
 
   const setPosition = (index, left, top, height) => {
-    intervalTree.insert([top, top + height, index])
-    leftMap[index] = left
+    const interval = [top, top + height, index]
+    intervalTree.insert(interval)
+    cachedIntervals.set(index, interval)
+    leftMap.set(index, left)
     const columnHeight = columnSizeMap[left]
 
-    if (columnHeight === undefined) {
+    if (columnHeight === void 0) {
       height = top + height
       columnSizeMap[left] = height
     }
@@ -42,6 +47,29 @@ const createPositionCache = () => {
     }
 
     count = intervalTree.count
+  }
+
+  const updatePosition = (index, left, top, height) => {
+    const
+      prevInterval = cachedIntervals.get(index),
+      prev = prevInterval[1],
+      next = top + height
+
+    intervalTree.remove(prevInterval)
+    const interval = [top, next, index]
+    intervalTree.insert(interval)
+    cachedIntervals.set(index, interval)
+
+    const columnHeight = columnSizeMap[left]
+
+    if (prev > next) {
+      if (columnSizeMap[left] === prev) {
+        columnSizeMap[left] = next
+      }
+    }
+    else {
+      columnSizeMap[left] = Math.max(columnHeight, next)
+    }
   }
 
   const getShortestColumnSize = () => {
@@ -65,12 +93,12 @@ const createPositionCache = () => {
   )
 
   return {
-    getSize: () => count,
     range,
+    getSize: () => count,
     estimateTotalHeight,
     getShortestColumnSize,
-    getTallestColumnSize,
-    setPosition
+    setPosition,
+    updatePosition
   }
 }
 

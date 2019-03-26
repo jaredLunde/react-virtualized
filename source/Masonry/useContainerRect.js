@@ -6,8 +6,7 @@ const get = memoizeOne(
     element,
     containerRect.width || windowWidth,
     containerRect.top
-  ]),
-  args => `${args[1].top},${args[1].width}${args[2]}`
+  ])
 )
 
 export default (windowWidth, windowHeight) => {

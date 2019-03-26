@@ -7,7 +7,7 @@ import useWindowSize from '@react-hook/window-size'
 
 
 const defaultSizeOpt = {wait: 120, leading: false}
-const defaultScrollFps = 12
+const defaultScrollFps = 8
 
 export default (opt = emptyObj) => {
   const scrollY = useWindowScroll(opt.scroll?.fps || defaultScrollFps)
@@ -16,11 +16,11 @@ export default (opt = emptyObj) => {
     opt?.size?.initialHeight || 720,
     opt.size || defaultSizeOpt
   )
-  const [state, setState] = useState({isScrolling: false})
+  const [isScrolling, setIsScrolling] = useState(false)
   const isScrollingTimeout = useRef(null)
   const unsetIsScrolling  = useCallback(
     () => {
-      setState({isScrolling: false})
+      setIsScrolling(false)
       isScrollingTimeout.current = null
     },
     emptyArr
@@ -28,25 +28,21 @@ export default (opt = emptyObj) => {
 
   useEffect(
     () => {
-      if (state.isScrolling === false) {
-        setState({isScrolling: true})
+      if (isScrolling === false && scrollY > 0) {
+        setIsScrolling(true)
       }
 
       if (isScrollingTimeout.current !== null) {
         clearRequestTimeout(isScrollingTimeout.current)
+        isScrollingTimeout.current = null
       }
 
-      isScrollingTimeout.current = requestTimeout(unsetIsScrolling, 120)
+      isScrollingTimeout.current = requestTimeout(unsetIsScrolling, 160)
       return () =>
         isScrollingTimeout.current !== null && clearRequestTimeout(isScrollingTimeout.current)
     },
     [scrollY]
   )
 
-  return {
-    windowWidth,
-    windowHeight,
-    scrollY,
-    isScrolling: state.isScrolling
-  }
+  return {windowWidth, windowHeight, scrollY, isScrolling}
 }
