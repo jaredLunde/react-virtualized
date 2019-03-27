@@ -85,7 +85,7 @@ class Masonry extends React.Component {
     tabIndex: 0,
     role: 'grid',
     columnWidth: 300,  // minimum column width
-    columnGutter: 8, // gutter size in px
+    columnGutter: 0, // gutter size in px
     getItemKey: defaultGetItemKey,
     estimatedItemHeight: 300,
     overscanBy: 1

@@ -17,7 +17,6 @@ export default (windowWidth, windowHeight) => {
   useEffect(
     () => {
       if (element.current !== null) {
-        // containerRect.current = element.current.getBoundingClientRect()
         setContainerRect({
           top: element.current.offsetTop,
           width: element.current.offsetWidth,

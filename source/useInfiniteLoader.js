@@ -58,8 +58,8 @@ export const scanForUnloadedRanges = (
       firstUnloadedStop = unloadedRanges[1]
 
     while (
-      firstUnloadedStop - firstUnloadedStart + 1
-      < minimumBatchSize && firstUnloadedStart > 0
+      firstUnloadedStop - firstUnloadedStart + 1 < minimumBatchSize
+      && firstUnloadedStart > 0
     ) {
       let index = firstUnloadedStart - 1
 
@@ -122,7 +122,9 @@ const useInfiniteLoader = (
         Math.max(0, startIndex - threshold),
         Math.min(totalItems - 1, stopIndex + threshold),
       )
-
+      // the user is responsible for memoizing their loadMoreItems() function
+      // because we don't want to make assumptions about how they want to deal
+      // with `items`
       for (let i = 0; i < unloadedRanges.length - 1; ++i)
         loadMoreItems(unloadedRanges[i], unloadedRanges[++i], items)
     },
