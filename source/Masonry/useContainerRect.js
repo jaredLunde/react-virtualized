@@ -1,6 +1,7 @@
-import {useEffect, useRef} from 'react'
+import {useEffect, useState, useRef} from 'react'
 import memoizeOne from '../utils/memoizeOne'
 
+const defaultRect = {top: 0, width: 0}
 const get = memoizeOne(
   (element, containerRect, windowWidth) => ([
     element,
@@ -11,20 +12,20 @@ const get = memoizeOne(
 
 export default (windowWidth, windowHeight) => {
   const element = useRef(null)
-  const containerRect = useRef({top: 0, width: 0})
+  const [containerRect, setContainerRect] = useState(defaultRect)
 
   useEffect(
     () => {
       if (element.current !== null) {
-        //containerRect.current = element.current.getBoundingClientRect()
-        containerRect.current = {
+        // containerRect.current = element.current.getBoundingClientRect()
+        setContainerRect({
           top: element.current.offsetTop,
           width: element.current.offsetWidth,
-        }
+        })
       }
     },
     [windowWidth, windowHeight, element.current]
   )
 
-  return get(element, containerRect.current, windowWidth)
+  return get(element, containerRect, windowWidth)
 }

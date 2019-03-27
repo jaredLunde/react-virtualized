@@ -2,9 +2,10 @@ import React from 'react'
 import Masonry from './Masonry'
 
 
-export default ({rowWidth, rowSpacer, ...props}) => <Masonry
+export default ({rowWidth, rowGutter, ...props}) => <Masonry
+  role='list'
   {...props}
-  columnSpacer={rowSpacer}
+  columnGutter={rowGutter}
   columnWidth={rowWidth}
   columnCount={1}
 />

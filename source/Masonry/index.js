@@ -1,4 +1,2 @@
-/** @flow */
-export MasonryObserver2 from './MasonryObserver2'
-export {default as Masonry} from './MasonryObserver2'
-export default from './MasonryObserver2'
+export default, {default as Masonry} from './Masonry'
+export useWindowScroller from './useWindowScroller'

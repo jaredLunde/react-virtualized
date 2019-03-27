@@ -4,16 +4,17 @@ import IntervalTree from './IntervalTree'
 //   O(log(n)) lookup of cells to render for a given viewport size
 //   O(1) lookup of shortest measured column (so we know when to enter phase 1)
 const createPositionCache = () => {
-  let count = 0
-  // Store tops and bottoms of each cell for fast intersection lookup.
-  let intervalTree = new IntervalTree()
-  // Tracks the intervals that were inserted into the interval tree so they can be
-  // removed when positions are updated
-  let cachedIntervals = new Map()
-  // Maps cell index to x coordinates for quick lookup.
-  let leftMap = new Map()
-  // Tracks the height of each column
-  let columnSizeMap  = {}
+  let
+    count = 0,
+    // Store tops and bottoms of each cell for fast intersection lookup.
+    intervalTree = new IntervalTree(),
+    // Tracks the intervals that were inserted into the interval tree so they can be
+    // removed when positions are updated
+    cachedIntervals = new Map(),
+    // Maps cell index to x coordinates for quick lookup.
+    leftMap = new Map(),
+    // Tracks the height of each column
+    columnSizeMap  = {}
 
   const estimateTotalHeight = (itemCount, columnCount, defaultItemHeight) => (
     getTallestColumnSize()
@@ -26,7 +27,7 @@ const createPositionCache = () => {
     intervalTree.queryInterval(
       scrollTop,
       scrollTop + clientHeight,
-      ([top, _, index]) => renderCallback(index, leftMap.get(index), top),
+      r => renderCallback(r[2]/*index*/, leftMap.get(r[2]/*index*/), r[0]/*top*/),
     )
   }
 
